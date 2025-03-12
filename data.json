@@ -1,0 +1,118 @@
+{
+  "intents": [
+    {
+      "tag": "noanswer",
+      "patterns": [""],
+      "responses": [
+        "Maaf, saya tidak mengerti apa yang kamu maksud.",
+        "Maaf, untuk saat ini chatbot ini belum dapat menjawab pertanyaan kamu."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "greeting",
+      "patterns": ["halo", "hello", "hai", "selamat pagi", "selamat siang", "selamat sore", "selamat malam"],
+      "responses": [
+        "Halo, selamat datang di layanan informasi Kecamatan Rangkasbitung. Ada yang bisa kami bantu?",
+        "Hai! Selamat datang di layanan informasi publik Kecamatan Rangkasbitung. Bagaimana kami bisa membantu Anda?",
+        "Selamat datang di layanan Kecamatan Rangkasbitung. Silakan tanyakan informasi yang Anda butuhkan."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "services",
+      "patterns": [
+        "Apa saja layanan yang tersedia di kecamatan Rangkasbitung?", 
+        "Layanan publik di kecamatan Rangkasbitung",
+        "Layanan apa yang tersedia di kecamatan?",
+        "Pelayanan apa yang bisa diurus di Kecamatan Rangkasbitung?",
+        "Apa yang bisa saya urus di Kecamatan Rangkasbitung?"
+      ],
+      "responses": [
+        "Di Kecamatan Rangkasbitung, kami menyediakan layanan publik seperti:",
+        "1. Pembuatan KTP",
+        "2. Pembuatan Kartu Keluarga (KK)",
+        "3. Pembuatan Akta Kelahiran",
+        "4. Pembuatan Surat Keterangan Tidak Mampu (SKTM)",
+        "5. Pembuatan Surat Kematian",
+        "6. Pembuatan Surat Keterangan Domisili",
+        "7. Pembuatan Surat Izin Usaha Mikro Kecil (IUMK)",
+        "8. Pembuatan Surat Pindah Domisili",
+        "9. Pembuatan Legalisasi Dokumen",
+        "10. Pelayanan Pengaduan Masyarakat."
+      ],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_ktp",
+      "patterns": ["Apa syarat pembuatan KTP?", "Bagaimana cara mengurus KTP?"],
+      "responses": ["Syarat pembuatan KTP: Fotokopi KK, Akta Kelahiran, Surat pengantar RT/RW, Pas foto."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_kk",
+      "patterns": ["Apa syarat pembuatan Kartu Keluarga?", "Bagaimana cara membuat KK baru?"],
+      "responses": ["Syarat pembuatan KK: Surat pengantar RT/RW, Fotokopi Akta Nikah, Fotokopi KTP anggota keluarga."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_akta_kelahiran",
+      "patterns": ["Apa syarat pembuatan Akta Kelahiran?", "Bagaimana cara mengurus akta kelahiran?"],
+      "responses": ["Syarat pembuatan Akta Kelahiran: Surat keterangan kelahiran dari rumah sakit/bidan, Fotokopi KK, Fotokopi KTP orang tua."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_sktm",
+      "patterns": ["Apa syarat pembuatan Surat Keterangan Tidak Mampu?", "Bagaimana cara membuat SKTM?"],
+      "responses": ["Syarat pembuatan SKTM: Surat pengantar RT/RW, Fotokopi KK, Fotokopi KTP Kepala Keluarga, Surat pernyataan tidak mampu."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_surat_kematian",
+      "patterns": ["Apa syarat pembuatan Surat Kematian?", "Bagaimana cara mengurus surat kematian?"],
+      "responses": ["Syarat pembuatan Surat Kematian: Surat keterangan kematian dari dokter/rumah sakit, Fotokopi KK, Fotokopi KTP almarhum/almarhumah, Fotokopi KTP pelapor, Surat pengantar RT/RW."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_domisili",
+      "patterns": ["Apa syarat pembuatan Surat Keterangan Domisili?", "Bagaimana cara mengurus surat domisili?"],
+      "responses": ["Syarat pembuatan Surat Keterangan Domisili: Surat pengantar RT/RW, Fotokopi KK, Fotokopi KTP."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_iumk",
+      "patterns": ["Apa syarat pembuatan Surat Izin Usaha Mikro Kecil?", "Bagaimana cara mengurus IUMK?"],
+      "responses": ["Syarat pembuatan IUMK: Surat pengantar RT/RW, Fotokopi KTP, Fotokopi KK, Surat pernyataan usaha."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_pindah_domisili",
+      "patterns": ["Apa syarat pembuatan Surat Pindah Domisili?", "Bagaimana cara mengurus surat pindah?"],
+      "responses": ["Syarat pembuatan Surat Pindah Domisili: Surat pengantar RT/RW, Fotokopi KK, Fotokopi KTP, Surat pernyataan pindah."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_legalisasi",
+      "patterns": ["Apa syarat pembuatan Legalisasi Dokumen?", "Bagaimana cara legalisasi dokumen?"],
+      "responses": ["Syarat pembuatan Legalisasi Dokumen: Dokumen asli yang akan dilegalisasi, Fotokopi dokumen, Surat pengantar jika diperlukan."],
+      "context": [""]
+    },
+    {
+      "tag": "requirement_pengaduan",
+      "patterns": ["Apa syarat untuk Pelayanan Pengaduan Masyarakat?", "Bagaimana cara mengajukan pengaduan?"],
+      "responses": ["Syarat pengaduan masyarakat: Formulir pengaduan, Fotokopi KTP, Bukti pendukung pengaduan."],
+      "context": [""]
+    },
+    {
+      "tag": "feedback",
+      "patterns": ["Selesai", "Terima kasih", "Cukup sekian"],
+      "responses": [
+        "Terima kasih telah menggunakan layanan informasi Kecamatan Rangkasbitung. Mohon berikan penilaian dan masukan Anda melalui Google Form berikut: [LINK GOOGLE FORM]",
+        "Kami sangat menghargai masukan Anda! Silakan isi formulir umpan balik di sini: [LINK GOOGLE FORM]",
+        "Jika Anda merasa layanan ini bermanfaat, mohon berikan penilaian melalui tautan berikut: [LINK GOOGLE FORM]"
+      ]
+    }
+  ]
+}
+
+
