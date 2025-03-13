@@ -1,45 +1,46 @@
 import nltk
 from nltk.stem import WordNetLemmatizer
-lemmatizer = WordNetLemmatizer()
+from nltk.corpus import stopwords
 import json
 import pickle
 import numpy as np
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Dropout
-from keras.optimizers import SGD
 import random
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
+from keras.optimizers import Adam
+
+# Download resources jika belum tersedia
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('stopwords')
+
+lemmatizer = WordNetLemmatizer()
+stop_words = set(stopwords.words('english'))
 
 # Load intents dataset
 words = []
 classes = []
 documents = []
 ignore_words = ['?', '!', '.', ',']
-data_file = open('data.json').read()
-intents = json.loads(data_file)
+
+with open('data.json') as file:
+    intents = json.load(file)
 
 # Process intents
 for intent in intents['intents']:
     for pattern in intent['patterns']:
-        # Tokenize each word in the pattern
+        # Tokenize and preprocess
         w = nltk.word_tokenize(pattern)
+        w = [lemmatizer.lemmatize(word.lower()) for word in w if word not in ignore_words and word not in stop_words]
         words.extend(w)
-        # Add to documents
         documents.append((w, intent['tag']))
-        # Add to classes if not already present
         if intent['tag'] not in classes:
             classes.append(intent['tag'])
 
-# Lemmatize, lowercase, and remove duplicates
-words = [lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_words]
-words = sorted(list(set(words)))
-classes = sorted(list(set(classes)))
+words = sorted(set(words))
+classes = sorted(set(classes))
 
-# Print dataset info
-print(f"{len(documents)} documents")
-print(f"{len(classes)} classes: {classes}")
-print(f"{len(words)} unique lemmatized words: {words}")
-
-# Save words and classes using pickle
+# Save words and classes
 pickle.dump(words, open('texts.pkl', 'wb'))
 pickle.dump(classes, open('labels.pkl', 'wb'))
 
@@ -47,43 +48,39 @@ pickle.dump(classes, open('labels.pkl', 'wb'))
 training = []
 output_empty = [0] * len(classes)
 
-# Create a bag of words for each sentence
 for doc in documents:
-    bag = []
-    pattern_words = doc[0]
-    # Lemmatize each word
-    pattern_words = [lemmatizer.lemmatize(word.lower()) for word in pattern_words]
-    # Create bag of words array
-    for w in words:
-        bag.append(1) if w in pattern_words else bag.append(0)
-
-    # Create output row
+    bag = [1 if w in doc[0] else 0 for w in words]
     output_row = list(output_empty)
     output_row[classes.index(doc[1])] = 1
-
     training.append([bag, output_row])
 
-# Shuffle and convert to NumPy arrays
 random.shuffle(training)
 train_x = np.array([x[0] for x in training], dtype=np.float32)
 train_y = np.array([x[1] for x in training], dtype=np.float32)
 
-print("Training data created")
-
-# Create model
-model = Sequential()
-model.add(Dense(128, input_shape=(len(train_x[0]),), activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(64, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(len(train_y[0]), activation='softmax'))
+# Build model
+model = Sequential([
+    Dense(128, input_shape=(len(train_x[0]),), activation='relu'),
+    Dropout(0.5),
+    Dense(64, activation='relu'),
+    Dropout(0.5),
+    Dense(len(classes), activation='softmax')
+])
 
 # Compile model
-sgd = SGD(learning_rate=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
 
-# Train and save the model
+# Train model
 hist = model.fit(train_x, train_y, epochs=200, batch_size=5, verbose=1)
-model.save('model.h5', hist)
 
-print("Model created and saved as 'model.h5'")
+# Save model
+model.save('model.h5')
+with open('training_history.json', 'w') as f:
+    json.dump(hist.history, f)
+
+# Save model architecture
+model_json = model.to_json()
+with open('model.json', 'w') as json_file:
+    json_file.write(model_json)
+
+print("Model created and saved successfully")
