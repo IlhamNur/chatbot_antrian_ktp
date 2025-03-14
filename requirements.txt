@@ -1,7 +1,9 @@
 flask
 flask_cors
+flask-mail
 psycopg2
 nltk
 numpy
 keras
 tensorflow
+python-dotenv

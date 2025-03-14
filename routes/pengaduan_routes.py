@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from config import get_db_connection
+from email_service import send_email
 
 pengaduan_bp = Blueprint('pengaduan_bp', __name__)
 
@@ -26,7 +27,12 @@ def add_pengaduan():
     cur.close()
     conn.close()
 
-    return jsonify({'message': 'Pengaduan berhasil dikirim'}), 201
+    # Kirim notifikasi email ke pengguna
+    subject = "Konfirmasi Pengaduan Anda"
+    body = f"Halo {nama},\n\nPengaduan Anda dengan kategori '{kategori}' telah diterima.\nKami akan segera menindaklanjuti.\n\nTerima kasih!"
+    send_email(email, subject, body)
+
+    return jsonify({'message': 'Pengaduan berhasil dikirim dan email notifikasi telah dikirim'}), 201
 
 # Endpoint untuk melihat semua pengaduan
 @pengaduan_bp.route('/list', methods=['GET'])

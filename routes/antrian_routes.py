@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from config import get_db_connection
+from email_service import send_email
 
 antrian_bp = Blueprint('antrian_bp', __name__)
 
@@ -36,7 +37,12 @@ def daftar_antrian():
     cur.close()
     conn.close()
 
-    return jsonify({'message': 'Antrian berhasil didaftarkan', 'nomor_antrian': nomor_antrian}), 201
+    # Kirim email notifikasi
+    subject = "Nomor Antrian KTP Anda"
+    body = f"Halo {nama},\n\nNomor antrian KTP Anda adalah {nomor_antrian}.\nHarap datang sesuai jadwal.\n\nTerima kasih!"
+    send_email(email, subject, body)
+
+    return jsonify({'message': 'Antrian berhasil didaftarkan dan email notifikasi telah dikirim', 'nomor_antrian': nomor_antrian}), 201
 
 # Endpoint untuk melihat semua antrian
 @antrian_bp.route('/list', methods=['GET'])
