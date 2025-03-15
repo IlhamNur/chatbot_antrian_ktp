@@ -181,6 +181,29 @@
         "Kami sangat menghargai masukan Anda! Silakan isi formulir umpan balik di sini: [LINK GOOGLE FORM]",
         "Jika Anda merasa layanan ini bermanfaat, mohon berikan penilaian melalui tautan berikut: [LINK GOOGLE FORM]"
       ]
+    },
+    {
+      "tag": "pengaduan",
+      "patterns": [
+        "Saya mau mengajukan pengaduan",
+        "Bagaimana cara melaporkan masalah?",
+        "Saya ingin membuat pengaduan"
+      ],
+      "responses": [
+        "Silakan sebutkan nama Anda, email, kategori pengaduan, dan isi pengaduan Anda.",
+        "Mohon berikan detail pengaduan Anda: Nama, Email, Kategori, dan Isi pengaduan."
+      ]
+    },
+    {
+      "tag": "antrian_ktp",
+      "patterns": [
+        "Saya ingin mendaftar antrian KTP",
+        "Bagaimana cara membuat KTP?",
+        "Apakah ada antrian untuk KTP?"
+      ],
+      "responses": [
+        "Silakan berikan nama lengkap dan email Anda untuk mendaftar antrian KTP."
+      ]
     }
   ]
 }
