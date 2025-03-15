@@ -74,5 +74,19 @@ def update_pengaduan(id):
     conn.commit()
     cur.close()
     conn.close()
+    
+    if status == 'Selesai':
+        
+        cur.execute("SELECT email, kategori FROM pengaduan WHERE id=%s", (id,))
+        pengaduan = cur.fetchone()
+        
+        email_penerima = pengaduan[0]
+        kategori = pengaduan[1]
+       
+        # Kirim email konfirmasi
+        subject = "Pengaduan Anda Telah Disetujui"
+        body = f"Halo,\n\nPengaduan Anda terkait {kategori} telah selesai diproses. Terima kasih atas partisipasi Anda.\n\nSalam,\nAdmin"
+        
+        send_email(email_penerima, subject, body) 
 
     return redirect(url_for('pengaduan_bp.list_pengaduan'), jsonify({'message': 'Status pengaduan diperbarui'})), 200
