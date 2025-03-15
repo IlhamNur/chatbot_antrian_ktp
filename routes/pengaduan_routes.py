@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from config import get_db_connection
 from email_service import send_email
 
@@ -57,7 +57,7 @@ def list_pengaduan():
             'created_at': p[7]
         })
 
-    return jsonify({'pengaduan': result}), 200
+    return render_template('pengaduan.html', pengaduan=result), 200
 
 # Endpoint untuk mengupdate status pengaduan
 @pengaduan_bp.route('/update/<int:id>', methods=['PUT'])
@@ -75,4 +75,4 @@ def update_pengaduan(id):
     cur.close()
     conn.close()
 
-    return jsonify({'message': 'Status pengaduan diperbarui'}), 200
+    return redirect(url_for('pengaduan_bp.list_pengaduan'), jsonify({'message': 'Status pengaduan diperbarui'})), 200

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from config import get_db_connection
 from email_service import send_email
 
@@ -66,7 +66,7 @@ def list_antrian():
             'created_at': a[6]
         })
 
-    return jsonify({'antrian': result}), 200
+    return render_template('antrian.html', antrian=result), 200
 
 # Endpoint untuk mengupdate status antrian
 @antrian_bp.route('/update/<int:id>', methods=['PUT'])
@@ -96,4 +96,4 @@ def reset_antrian():
     cur.close()
     conn.close()
 
-    return jsonify({'message': 'Antrian berhasil direset'}), 200
+    return redirect(url_for('antrian_bp.list_antrian'), jsonify({'message': 'Antrian berhasil direset'})), 200

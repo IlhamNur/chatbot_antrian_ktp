@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 import nltk
@@ -24,7 +24,7 @@ lemmatizer = WordNetLemmatizer()
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 # Load model dan data
-load_dotenv()
+load_dotenv
 model = load_model('model.h5')
 intents = json.loads(open('data.json').read())
 words = pickle.load(open('texts.pkl', 'rb'))

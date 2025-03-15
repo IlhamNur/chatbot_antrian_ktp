@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from config import get_db_connection
 
 chat_bp = Blueprint('chat_bp', __name__)
@@ -35,3 +35,14 @@ def get_chat(user_id):
     conn.close()
 
     return jsonify({'history': chats}), 200
+
+@chat_bp.route('/get', methods=['GET'])
+def history():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT message, response, timestamp FROM chat_history")
+    chats = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return render_template('history.html', history=chats), 200

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Riwayat Chatbot</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/style.css') }}"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1>Riwayat Percakapan Chatbot</h1>
+    <table border="1">
+      <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Chat</th>
+        <th>Waktu</th>
+      </tr>
+      {% for h in history %}
+      <tr>
+        <td>{{ h[0] }}</td>
+        <td>{{ h[1] }}</td>
+        <td>{{ h[2] }}</td>
+        <td>{{ h[3] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

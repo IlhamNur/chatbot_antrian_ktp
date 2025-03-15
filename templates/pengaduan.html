@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pengaduan Masyarakat</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/style.css') }}"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1>Daftar Pengaduan</h1>
+    <table border="1">
+      <tr>
+        <th>ID</th>
+        <th>Nama</th>
+        <th>Email</th>
+        <th>Kategori</th>
+        <th>Isi Pengaduan</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+      {% for p in pengaduan %}
+      <tr>
+        <td>{{ p[0] }}</td>
+        <td>{{ p[2] }}</td>
+        <td>{{ p[3] }}</td>
+        <td>{{ p[4] }}</td>
+        <td>{{ p[5] }}</td>
+        <td>{{ p[6] }}</td>
+        <td>
+          {% if p[6] == 'Pending' %}
+          <form
+            action="{{ url_for('pangudan_bp.update_pengaduan', id=p[0]) }}"
+            method="post"
+          >
+            <button type="submit">Approve</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
