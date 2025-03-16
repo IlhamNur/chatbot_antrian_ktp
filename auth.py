@@ -8,9 +8,9 @@ auth = Blueprint('auth', __name__)
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 
-# Koneksi database
-conn = psycopg2.connect(os.getenv("DATABASE_URL"))
-cursor = conn.cursor()
+# Fungsi untuk mendapatkan koneksi database baru
+def get_db_connection():
+    return psycopg2.connect(os.getenv("DATABASE_URL"))
 
 class User(UserMixin):
     def __init__(self, id, email, role):
@@ -20,10 +20,15 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    cursor.execute("SELECT id, email, role FROM users WHERE id = %s", (user_id,))
-    user = cursor.fetchone()
-    if user:
-        return User(user[0], user[1], user[2])
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT id, email, role FROM users WHERE id = %s", (user_id,))
+                user = cursor.fetchone()
+                if user:
+                    return User(user[0], user[1], user[2])
+    except Exception as e:
+        print(f"Error loading user: {e}")
     return None
 
 # Register untuk user biasa
@@ -34,12 +39,14 @@ def register():
         password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
         
         try:
-            cursor.execute("INSERT INTO users (email, password, role) VALUES (%s, %s, 'user')", (email, password))
-            conn.commit()
+            with get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("INSERT INTO users (email, password, role) VALUES (%s, %s, 'user')", (email, password))
+                    conn.commit()
             flash('Registrasi berhasil! Silakan login.', 'success')
             return redirect(url_for('auth.login'))
-        except:
-            flash('Email sudah terdaftar.', 'danger')
+        except psycopg2.Error as e:
+            flash(f'Error: {e.pgerror}', 'danger')
             return redirect(url_for('auth.register'))
     
     return render_template('register.html')
@@ -51,21 +58,25 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        cursor.execute("SELECT id, email, password, role FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
+        try:
+            with get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SELECT id, email, password, role FROM users WHERE email = %s", (email,))
+                    user = cursor.fetchone()
 
-        if user and bcrypt.check_password_hash(user[2], password):
-            user_obj = User(user[0], user[1], user[3])
-            login_user(user_obj)
-            session['role'] = user[3]
+                    if user and bcrypt.check_password_hash(user[2], password):
+                        user_obj = User(user[0], user[1], user[3])
+                        login_user(user_obj)
+                        session['role'] = user[3]
 
-            if user[3] == 'admin':
-                return redirect(url_for('admin.dashboard'))
-            else:
-                return redirect(url_for('user.dashboard'))
-        
+                        if user[3] == 'admin':
+                            return redirect(url_for('admin.dashboard'))
+                        return redirect(url_for('user.dashboard'))
+        except psycopg2.Error as e:
+            flash(f'Error: {e.pgerror}', 'danger')
+
         flash('Email atau password salah!', 'danger')
-    
+
     return render_template('login.html')
 
 # Logout
@@ -74,4 +85,5 @@ def login():
 def logout():
     logout_user()
     session.pop('role', None)
+    flash('Anda telah logout.', 'info')
     return redirect(url_for('auth.login'))
