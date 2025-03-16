@@ -12,9 +12,13 @@
   <body>
     <h1>Dashboard Admin</h1>
     <ul>
-      <li><a href="{{ url_for('pengaduan') }}">Pengaduan</a></li>
-      <li><a href="{{ url_for('antrian') }}">Antrian KTP</a></li>
-      <li><a href="{{ url_for('history') }}">History Chat</a></li>
+      <li>
+        <a href="{{ url_for('pengaduan_bp.list_pengaduan') }}">Pengaduan</a>
+      </li>
+      <li>
+        <a href="{{ url_for('antrian_bp.list_antrian') }}">Antrian KTP</a>
+      </li>
+      <li><a href="{{ url_for('chat_bp.history') }}">History Chat</a></li>
     </ul>
   </body>
 </html>

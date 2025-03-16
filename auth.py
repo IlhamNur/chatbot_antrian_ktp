@@ -1,16 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import UserMixin, login_user, login_required, logout_user
+from config import get_db_connection
 import psycopg2
-import os
 
 auth = Blueprint('auth', __name__)
-bcrypt = Bcrypt()
-login_manager = LoginManager()
-
-# Fungsi untuk mendapatkan koneksi database baru
-def get_db_connection():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
+bcrypt = Bcrypt()  # Ini diinisialisasi di app.py
 
 class User(UserMixin):
     def __init__(self, id, email, role):
@@ -18,7 +13,7 @@ class User(UserMixin):
         self.email = email
         self.role = role
 
-@login_manager.user_loader
+# Fungsi user_loader untuk Flask-Login
 def load_user(user_id):
     try:
         with get_db_connection() as conn:
@@ -31,7 +26,6 @@ def load_user(user_id):
         print(f"Error loading user: {e}")
     return None
 
-# Register untuk user biasa
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -51,7 +45,6 @@ def register():
     
     return render_template('register.html')
 
-# Login
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -69,9 +62,7 @@ def login():
                         login_user(user_obj)
                         session['role'] = user[3]
 
-                        if user[3] == 'admin':
-                            return redirect(url_for('admin.dashboard'))
-                        return redirect(url_for('user.dashboard'))
+                        return redirect(url_for('home'))
         except psycopg2.Error as e:
             flash(f'Error: {e.pgerror}', 'danger')
 
@@ -79,7 +70,6 @@ def login():
 
     return render_template('login.html')
 
-# Logout
 @auth.route('/logout')
 @login_required
 def logout():

@@ -13,7 +13,7 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>Masuk | Chatbot</title>
+    <title>Daftar | Chatbot</title>
 
     <meta name="description" content="" />
 
@@ -74,11 +74,11 @@
     <div class="container-xxl">
       <div class="authentication-wrapper authentication-basic container-p-y">
         <div class="authentication-inner">
-          <!-- Register -->
+          <!-- Register Card -->
           <div class="card px-sm-6 px-0">
             <div class="card-body">
               <!-- Logo -->
-              <div class="app-brand justify-content-center">
+              <div class="app-brand justify-content-center mb-6">
                 <a href="index.html" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
                     <span class="text-primary">
@@ -95,7 +95,7 @@
               </div>
               <!-- /Logo -->
               <h4 class="mb-1">Kecamatan Rangkasbitung</h4>
-              <p class="mb-6">Masuk ke akunmu dan kami akan siap membantu</p>
+              <p class="mb-6">Daftarkan akunmu dan kami akan siap membantu</p>
 
               {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %} {% for category, message in messages %}
@@ -105,7 +105,7 @@
               <form
                 id="formAuthentication"
                 class="mb-6"
-                action="{{ url_for('auth.login') }}"
+                action="{{ url_for('auth.register') }}"
                 method="POST"
               >
                 <div class="mb-6">
@@ -115,12 +115,10 @@
                     class="form-control"
                     id="email"
                     name="email"
-                    placeholder="Masukkan Emailmu"
-                    autofocus
-                    required
+                    placeholder="Masukkan emailmu"
                   />
                 </div>
-                <div class="mb-6 form-password-toggle">
+                <div class="form-password-toggle">
                   <label class="form-label" for="password">Password</label>
                   <div class="input-group input-group-merge">
                     <input
@@ -130,29 +128,25 @@
                       name="password"
                       placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
                       aria-describedby="password"
-                      required
                     />
                     <span class="input-group-text cursor-pointer"
                       ><i class="icon-base bx bx-hide"></i
                     ></span>
                   </div>
                 </div>
-                <div class="mb-6">
-                  <button class="btn btn-primary d-grid w-100" type="submit">
-                    Masuk
-                  </button>
-                </div>
+                <div class="my-7"></div>
+                <button class="btn btn-primary d-grid w-100">Daftar</button>
               </form>
 
               <p class="text-center">
-                <span>Masih baru di sini?</span>
-                <a href="{{ url_for('auth.register') }}">
-                  <span>Buat Akun</span>
+                <span>Sudah punya akun?</span>
+                <a href="{{ url_for('auth.login') }}">
+                  <span>Masuk</span>
                 </a>
               </p>
             </div>
           </div>
-          <!-- /Register -->
+          <!-- Register Card -->
         </div>
       </div>
     </div>
