@@ -18,13 +18,48 @@
         <div class="msger-header-title">
           <i class="fas fa-bug"></i> CHATPEKAR <i class="fas fa-bug"></i>
         </div>
+        <div class="logout-container">
+          <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
+        </div>
       </header>
 
       <main class="msger-chat">
         {% with messages = get_flashed_messages(with_categories=true) %} {% if
         messages %} {% for category, message in messages %}
         <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %} {% endif %} {% endwith %}
+        {% endfor %} {% endif %} {% endwith %} {% for chat in history %}
+        <div class="msg right-msg">
+          <div
+            class="msg-img"
+            style="background-image: url(static/images/Roboot.jpg)"
+          ></div>
+          <div class="msg-bubble">
+            <div class="msg-info">
+              <div class="msg-info-name">You</div>
+              <div class="msg-info-time">
+                {{ chat.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+              </div>
+            </div>
+            <div class="msg-text">{{ chat.message }}</div>
+          </div>
+        </div>
+
+        <div class="msg left-msg">
+          <div
+            class="msg-img"
+            style="background-image: url(static/images/kecamatan.jpg)"
+          ></div>
+          <div class="msg-bubble">
+            <div class="msg-info">
+              <div class="msg-info-name">Chatbot</div>
+              <div class="msg-info-time">
+                {{ chat.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+              </div>
+            </div>
+            <div class="msg-text">{{ chat.response }}</div>
+          </div>
+        </div>
+        {% endfor %}
 
         <div class="msg left-msg">
           <div
@@ -70,35 +105,58 @@
       const BOT_NAME = "Pelayanan Informasi Kecamatan Rangkasbitung";
       const PERSON_NAME = "You";
 
+      // Ambil email pengguna dari Flask template
+      const userEmail = "{{ current_user.email }}";
+      const userName = userEmail.split("@")[0]; // Ambil bagian sebelum @ sebagai nama
+
+      // Status dialog
+      let isAwaitingPengaduan = false;
+      let isAwaitingAntrian = false;
+
       // 🔹 SET WAKTU untuk pesan default bot saat halaman dimuat
       document.getElementById("msgTime").innerText = getCurrentTime();
 
       msgerForm.addEventListener("submit", (event) => {
         event.preventDefault();
 
-        const msgText = msgerInput.value;
+        const msgText = msgerInput.value.trim();
         if (!msgText) return;
 
         appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
         msgerInput.value = "";
+
+        if (isAwaitingPengaduan) {
+          processPengaduan(msgText);
+          return;
+        }
+
+        if (isAwaitingAntrian) {
+          processAntrian(msgText);
+          return;
+        }
+
         botResponse(msgText);
       });
 
-      function appendMessage(name, img, side, text) {
+      function appendMessage(
+        name,
+        img,
+        side,
+        text,
+        timestamp = getCurrentTime()
+      ) {
         const msgHTML = `
-        <div class="msg ${side}-msg">
-          <div class="msg-img" style="background-image: url(${img})"></div>
-
-          <div class="msg-bubble">
-            <div class="msg-info">
-              <div class="msg-info-name">${name}</div>
-              <div class="msg-info-time">${getCurrentTime()}</div>
-            </div>
-
-            <div class="msg-text">${text}</div>
-          </div>
+    <div class="msg ${side}-msg">
+      <div class="msg-img" style="background-image: url(${img})"></div>
+      <div class="msg-bubble">
+        <div class="msg-info">
+          <div class="msg-info-name">${name}</div>
+          <div class="msg-info-time">${timestamp}</div>
         </div>
-      `;
+        <div class="msg-text">${text}</div>
+      </div>
+    </div>
+  `;
 
         msgerChat.insertAdjacentHTML("beforeend", msgHTML);
         msgerChat.scrollTop += 500;
@@ -106,9 +164,123 @@
 
       function botResponse(rawText) {
         $.get("/get", { msg: rawText }).done(function (data) {
-          console.log(rawText);
-          console.log(data);
-          appendMessage(BOT_NAME, BOT_IMG, "left", data);
+          console.log("User:", rawText);
+          console.log("Bot:", data.response);
+
+          appendMessage(BOT_NAME, BOT_IMG, "left", data.response);
+
+          // Jika chatbot mendeteksi intent 'pengaduan', minta detail pengaduan
+          if (data.intent === "pengaduan") {
+            isAwaitingPengaduan = true;
+          } else if (data.intent === "antrian_ktp") {
+            isAwaitingAntrian = true;
+          }
+
+          saveChat(rawText, data.response);
+        });
+      }
+
+      function processPengaduan(userInput) {
+        // Format: "nama, email, kategori, isi_pengaduan"
+        let parts = userInput.split(",");
+        if (parts.length < 4) {
+          appendMessage(
+            BOT_NAME,
+            BOT_IMG,
+            "left",
+            "Format salah! Mohon masukkan dengan format: Nama, Email, Kategori, Isi Pengaduan."
+          );
+          return;
+        }
+
+        let nama = parts[0].trim();
+        let email = parts[1].trim();
+        let kategori = parts[2].trim();
+        let isi_pengaduan = parts.slice(3).join(",").trim();
+
+        // Kirim pengaduan ke server
+        $.ajax({
+          type: "POST",
+          url: "/pengaduan/add",
+          contentType: "application/json",
+          data: JSON.stringify({
+            user_id: "{{ current_user.id }}",
+            nama: nama,
+            email: email,
+            kategori: kategori,
+            isi_pengaduan: isi_pengaduan,
+          }),
+          success: function (resp) {
+            console.log("Pengaduan berhasil dikirim:", resp);
+            appendMessage(
+              BOT_NAME,
+              BOT_IMG,
+              "left",
+              "Pengaduan Anda telah diterima."
+            );
+          },
+          error: function (err) {
+            console.error("Gagal mengirim pengaduan:", err);
+          },
+        });
+
+        isAwaitingPengaduan = false; // Reset status
+      }
+
+      function processAntrian(userInput) {
+        let parts = userInput.split(",");
+        if (parts.length < 2) {
+          appendMessage(
+            BOT_NAME,
+            BOT_IMG,
+            "left",
+            "Format salah! Mohon masukkan dengan format: Nama, Email."
+          );
+          return;
+        }
+
+        let nama = parts[0].trim();
+        let email = parts[1].trim();
+
+        // Kirim permintaan antrian ke server
+        $.ajax({
+          type: "POST",
+          url: "/antrian/daftar",
+          contentType: "application/json",
+          data: JSON.stringify({
+            user_id: "{{ current_user.id }}",
+            nama: nama,
+            email: email,
+          }),
+          success: function (resp) {
+            console.log("Antrian berhasil didaftarkan:", resp);
+            appendMessage(
+              BOT_NAME,
+              BOT_IMG,
+              "left",
+              "Nomor antrian Anda: " + resp.nomor_antrian
+            );
+          },
+          error: function (err) {
+            console.error("Gagal mendaftar antrian:", err);
+          },
+        });
+
+        isAwaitingAntrian = false; // Reset status
+      }
+
+      function saveChat(message, response) {
+        $.ajax({
+          type: "POST",
+          url: "/chat/add",
+          contentType: "application/json",
+          data: JSON.stringify({ message: message, response: response }),
+          success: function (resp) {
+            console.log("Chat berhasil disimpan:", resp);
+          },
+          error: function (err) {
+            console.error("Gagal menyimpan chat:", err);
+          },
         });
       }
 

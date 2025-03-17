@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_cors import CORS
 from flask_login import login_required, current_user, LoginManager
 from dotenv import load_dotenv
@@ -14,6 +14,7 @@ from routes.chat_routes import chat_bp
 from routes.pengaduan_routes import pengaduan_bp
 from routes.antrian_routes import antrian_bp
 from auth import auth, load_user, bcrypt
+from config import get_db_connection
 
 # Pastikan hanya perlu mengunduh saat pertama kali setup
 nltk.download('punkt')
@@ -26,7 +27,7 @@ lemmatizer = WordNetLemmatizer()
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 # Load model dan data
-load_dotenv
+load_dotenv()
 model = load_model('model.keras')
 intents = json.loads(open('data.json').read())
 words = pickle.load(open('texts.pkl', 'rb'))
@@ -59,12 +60,14 @@ def predict_class(sentence):
 # Mendapatkan respons berdasarkan intent
 def getResponse(ints):
     if not ints:
-        return "Maaf, saya tidak memahami pertanyaan Anda."
+        return {"response": "Maaf, saya tidak memahami pertanyaan Anda.", "intent": "none"}
+    
     tag = ints[0]['intent']
     for intent in intents['intents']:
         if intent['tag'] == tag:
-            return random.choice(intent['responses'])
-    return "Maaf, saya tidak memahami pertanyaan Anda."
+            return {"response": random.choice(intent['responses']), "intent": tag}
+    
+    return {"response": "Maaf, saya tidak memahami pertanyaan Anda.", "intent": "none"}
 
 # Fungsi utama chatbot
 def chatbot_response(msg):
@@ -78,7 +81,7 @@ CORS(app)
 
 # Inisialisasi Flask-Login
 login_manager = LoginManager()
-login_manager.init_app(app)  # Hubungkan dengan Flask app
+login_manager.init_app(app)
 login_manager.login_view = "auth.login"
 login_manager.user_loader(load_user)
 
@@ -89,7 +92,22 @@ bcrypt.init_app(app)
 @login_required
 def home():
     if current_user.role == 'user':
-        return render_template('index.html')
+        try:
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT message, response, timestamp 
+                        FROM chat_history 
+                        WHERE user_id = %s 
+                        ORDER BY timestamp ASC
+                    """, (str(current_user.id),))
+                    chats = cur.fetchall()
+
+            history = [{'message': c[0], 'response': c[1], 'timestamp': c[2]} for c in chats]
+            return render_template('index.html', history=history)
+
+        except Exception as e:
+            return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
     elif current_user.role == 'admin':
         return redirect(url_for('pengaduan_bp.list_pengaduan'))
     else:
@@ -99,8 +117,10 @@ def home():
 def get_bot_response():
     userText = request.args.get('msg', '').strip()
     if not userText:
-        return "Silakan ketik sesuatu untuk saya jawab."
-    return chatbot_response(userText)
+        return jsonify({"response": "Silakan ketik sesuatu untuk saya jawab.", "intent": "none"})
+    
+    result = chatbot_response(userText)
+    return jsonify(result)
 
 app.register_blueprint(chat_bp, url_prefix='/chat')
 app.register_blueprint(pengaduan_bp, url_prefix='/pengaduan')

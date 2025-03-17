@@ -231,10 +231,12 @@
                   class="card-header d-flex align-items-center justify-content-between p-3"
                 >
                   <h5>Daftar Antrian KTP</h5>
+                  {% if antrian %}
                   <form
                     action="{{ url_for('antrian_bp.reset_antrian') }}"
-                    method="delete"
+                    method="post"
                   >
+                    <input type="hidden" name="_method" value="DELETE" />
                     <button
                       type="submit"
                       class="btn rounded-pill btn-outline-danger"
@@ -242,6 +244,7 @@
                       Reset
                     </button>
                   </form>
+                  {% endif %}
                 </div>
                 <div class="table-responsive text-nowrap">
                   <table class="table">
@@ -257,7 +260,7 @@
                     <tbody class="table-border-bottom-0">
                       {% for a in antrian %}
                       <tr>
-                        <td>{{ a.nomor_antrian }}</td>
+                        <td>{{ loop.index }}</td>
                         <td>{{ a.nama }}</td>
                         <td>{{ a.email }}</td>
                         <td>

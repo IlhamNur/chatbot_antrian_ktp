@@ -53,7 +53,7 @@ def list_antrian():
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT id, user_id, nama, email, nomor_antrian, status, created_at FROM antrian_ktp ORDER BY created_at ASC")
+                cur.execute("SELECT id, user_id, nama, email, nomor_antrian, status, created_at FROM antrian_ktp WHERE status = 'Menunggu' ORDER BY created_at ASC")
                 antrian = cur.fetchall()
 
         result = [
@@ -92,17 +92,20 @@ def update_antrian(id):
         return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
 
 # Endpoint untuk reset antrian
-@antrian_bp.route('/reset', methods=['DELETE'])
+@antrian_bp.route('/reset', methods=['POST'])
 @login_required
 @admin_required
 def reset_antrian():
-    try:
-        with get_db_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("DELETE FROM antrian_ktp")
-                conn.commit()
+    if request.form.get('_method') == 'DELETE':
+        try:
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("DELETE FROM antrian_ktp")
+                    conn.commit()
 
-        return jsonify({'message': 'Antrian berhasil direset'}), 200
+            return redirect(url_for('antrian_bp.list_antrian'), jsonify({'message': 'Antrian berhasil direset'})), 200
 
-    except Exception as e:
-        return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
+        except Exception as e:
+            return redirect(url_for('antrian_bp.list_antrian'), jsonify({'error': f'Terjadi kesalahan: {str(e)}'})), 500
+
+    return jsonify({'error': 'Method Not Allowed'}), 405
