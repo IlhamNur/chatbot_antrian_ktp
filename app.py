@@ -91,7 +91,7 @@ def home():
     if current_user.role == 'user':
         return render_template('index.html')
     elif current_user.role == 'admin':
-        return render_template('admin_dashboard.html')
+        return redirect(url_for('pengaduan_bp.list_pengaduan'))
     else:
         return redirect(url_for('auth.login'))
 

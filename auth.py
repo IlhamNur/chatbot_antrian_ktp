@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, abort
 from flask_bcrypt import Bcrypt
-from flask_login import UserMixin, login_user, login_required, logout_user
+from flask_login import UserMixin, login_user, login_required, logout_user, current_user
 from config import get_db_connection
 import psycopg2
 
@@ -12,6 +12,16 @@ class User(UserMixin):
         self.id = id
         self.email = email
         self.role = role
+
+
+def admin_required(func):
+    """Dekorator untuk memastikan hanya admin yang bisa mengakses route"""
+    def wrapper(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'admin':
+            abort(403)  # Forbidden
+        return func(*args, **kwargs)
+    wrapper.__name__ = func.__name__  # Agar Flask bisa mengenali nama fungsi asli
+    return wrapper
 
 # Fungsi user_loader untuk Flask-Login
 def load_user(user_id):

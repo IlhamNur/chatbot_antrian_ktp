@@ -1,32 +1,549 @@
 <!DOCTYPE html>
-<html lang="id">
+
+<html
+  lang="en"
+  class="layout-menu-fixed layout-compact"
+  data-assets-path="../static/assets/"
+  data-template="vertical-menu-template-free"
+>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Riwayat Chatbot</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>Chat History | Chatbot</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="../static/assets/img/favicon/favicon.ico"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='styles/style.css') }}"
+      href="../static/assets/vendor/fonts/iconify-icons.css"
     />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Core CSS -->
+    <!-- build:css assets/vendor/css/theme.css  -->
+
+    <link rel="stylesheet" href="../static/assets/vendor/css/core.css" />
+    <link rel="stylesheet" href="../static/assets/css/demo.css" />
+
+    <!-- Vendors CSS -->
+
+    <link
+      rel="stylesheet"
+      href="../static/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"
+    />
+
+    <!-- endbuild -->
+
+    <link
+      rel="stylesheet"
+      href="../static/assets/vendor/libs/apex-charts/apex-charts.css"
+    />
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="../static/assets/vendor/js/helpers.js"></script>
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+
+    <script src="../static/assets/js/config.js"></script>
+    <style>
+      /* Scrollbar Styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+
+      /* Card Styling */
+      .card-bordered {
+        border: 1px solid #ebebeb;
+      }
+      .card {
+        border: 0;
+        border-radius: 0px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.03);
+        transition: 0.5s;
+      }
+      .padding {
+        padding: 3rem !important;
+      }
+
+      /* Page Background */
+      body {
+        background-color: #f9f9fa;
+      }
+
+      /* Card Header */
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: transparent;
+        border-bottom: 1px solid rgba(77, 82, 89, 0.07);
+      }
+      .card-title {
+        font-family: Roboto, sans-serif;
+        font-size: 17px;
+        font-weight: 300;
+        margin: 0;
+      }
+
+      /* Chat Container */
+      .ps-container {
+        position: relative;
+        overflow: hidden !important;
+      }
+
+      /* Chat Bubble Bot (Di Kiri, Warna Default) */
+      .media-chat.bot {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 10px;
+      }
+      .media-chat.bot .media-body {
+        max-width: 75%;
+      }
+      .media-chat.bot .media-body p {
+        background-color: #f5f6f7;
+        color: #333;
+        padding: 6px 12px;
+        margin: 4px 0;
+        border-radius: 8px;
+        font-weight: 400;
+      }
+
+      /* Chat Bubble User (Di Kanan, Warna Biru) */
+      .media-chat.user {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+      }
+      .media-chat.user .media-body {
+        max-width: 75%;
+      }
+      .media-chat.user .media-body p {
+        background-color: #48b0f7;
+        color: white;
+        padding: 6px 12px;
+        margin: 4px 0;
+        border-radius: 8px;
+        font-weight: 400;
+        text-align: right;
+      }
+
+      /* Chat Metadata (Date & Time) */
+      .media-meta-day {
+        display: flex;
+        justify-content: center;
+        color: #8b95a5;
+        font-weight: 400;
+        margin: 8px 0;
+      }
+
+      /* Input Publisher */
+      .publisher {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        background-color: #f9fafb;
+      }
+      .publisher-input {
+        flex-grow: 1;
+        border: none;
+        outline: none !important;
+        background-color: transparent;
+      }
+      .publisher-btn {
+        background-color: transparent;
+        border: none;
+        color: #8b95a5;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.2s linear;
+      }
+
+      /* File Upload */
+      .file-group {
+        position: relative;
+        overflow: hidden;
+      }
+      .file-group input[type="file"] {
+        position: absolute;
+        opacity: 0;
+        z-index: -1;
+        width: 20px;
+      }
+    </style>
   </head>
+
   <body>
-    <h1>Riwayat Percakapan Chatbot</h1>
-    <table border="1">
-      <tr>
-        <th>ID</th>
-        <th>User ID</th>
-        <th>Chat</th>
-        <th>Waktu</th>
-      </tr>
-      {% for h in history %}
-      <tr>
-        <td>{{ h[0] }}</td>
-        <td>{{ h[1] }}</td>
-        <td>{{ h[2] }}</td>
-        <td>{{ h[3] }}</td>
-      </tr>
-      {% endfor %}
-    </table>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        <aside
+          id="layout-menu"
+          class="layout-menu menu-vertical menu bg-menu-theme"
+        >
+          <div class="app-brand demo">
+            <a href="{{ url_for('home') }}" class="app-brand-link">
+              <span class="app-brand-logo demo">
+                <span class="text-primary">
+                  <img
+                    src="../static/images/Kecamatan.jpg"
+                    style="width: 84px; height: 50px"
+                  />
+                </span>
+              </span>
+              <span class="app-brand-text demo menu-text fw-bold ms-2"
+                >Chatbot</span
+              >
+            </a>
+
+            <a
+              href="javascript:void(0);"
+              class="layout-menu-toggle menu-link text-large ms-auto"
+            >
+              <i class="bx bx-chevron-left d-block d-xl-none align-middle"></i>
+            </a>
+          </div>
+
+          <div class="menu-divider mt-0"></div>
+
+          <div class="menu-inner-shadow"></div>
+
+          <ul class="menu-inner py-1">
+            <!-- Navbar -->
+            <li class="menu-item">
+              <a href="{{ url_for('home') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-smile"></i>
+                <div class="text-truncate" data-i18n="Pengaduan">Pengaduan</div>
+              </a>
+            </li>
+            <li class="menu-item active">
+              <a href="{{ url_for('chat_bp.history') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-chat"></i>
+                <div class="text-truncate" data-i18n="Chat History">
+                  Chat History
+                </div>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a
+                href="{{ url_for('antrian_bp.list_antrian') }}"
+                class="menu-link"
+              >
+                <i class="menu-icon tf-icons bx bx-copy"></i>
+                <div class="text-truncate" data-i18n="Antrian KTP">
+                  Antrian KTP
+                </div>
+              </a>
+            </li>
+          </ul>
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+
+          <nav
+            class="layout-navbar container-xxl navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme"
+            id="layout-navbar"
+          >
+            <div
+              class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none"
+            >
+              <a
+                class="nav-item nav-link px-0 me-xl-6"
+                href="javascript:void(0)"
+              >
+                <i class="icon-base bx bx-menu icon-md"></i>
+              </a>
+            </div>
+
+            <div
+              class="navbar-nav-right d-flex align-items-center justify-content-end"
+              id="navbar-collapse"
+            >
+              <ul class="navbar-nav flex-row align-items-center ms-md-auto">
+                <!-- User -->
+                <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                  <a
+                    class="nav-link dropdown-toggle hide-arrow p-0"
+                    href="javascript:void(0);"
+                    data-bs-toggle="dropdown"
+                  >
+                    <div class="avatar avatar-online">
+                      <img
+                        src="../static/assets/img/avatars/1.png"
+                        alt
+                        class="w-px-40 h-auto rounded-circle"
+                      />
+                    </div>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a class="dropdown-item" href="#">
+                        <div class="d-flex">
+                          <div class="flex-shrink-0 me-3">
+                            <div class="avatar avatar-online">
+                              <img
+                                src="../static/assets/img/avatars/1.png"
+                                alt
+                                class="w-px-40 h-auto rounded-circle"
+                              />
+                            </div>
+                          </div>
+                          <div class="flex-grow-1">
+                            <h6 class="mb-0">Admin</h6>
+                            <small class="text-body-secondary">Admin</small>
+                          </div>
+                        </div>
+                      </a>
+                    </li>
+                    <li>
+                      <div class="dropdown-divider my-1"></div>
+                    </li>
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        href="{{ url_for('auth.logout') }}"
+                      >
+                        <i class="icon-base bx bx-power-off icon-md me-3"></i
+                        ><span>Log Out</span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <!--/ User -->
+              </ul>
+            </div>
+          </nav>
+
+          <!-- / Navbar -->
+
+          {% with messages = get_flashed_messages(with_categories=true) %} {% if
+          messages %} {% for category, message in messages %}
+          <p class="alert alert-{{ category }}">{{ message }}</p>
+          {% endfor %} {% endif %} {% endwith %}
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <!-- Basic Bootstrap Table -->
+              <div class="card">
+                <h5 class="card-header">Daftar Chat</h5>
+                <div class="table-responsive text-nowrap">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        <th>Email</th>
+                        <th>Waktu Terakhir</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                      {% for p in users %}
+                      <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ p.email }}</td>
+                        <td>
+                          {{ p.last_message_time.strftime('%Y-%m-%d %H:%M:%S')
+                          }}
+                        </td>
+                        <td>
+                          <div class="dropdown">
+                            <button
+                              type="button"
+                              class="btn p-0 dropdown-toggle hide-arrow"
+                              data-bs-toggle="dropdown"
+                            >
+                              <i
+                                class="icon-base bx bx-dots-vertical-rounded"
+                              ></i>
+                            </button>
+                            <div class="dropdown-menu">
+                              <button
+                                class="dropdown-item"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalScrollable{{ p.id }}"
+                              >
+                                Detail
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!--/ Basic Bootstrap Table -->
+            </div>
+            <!-- / Content -->
+
+            {% for p in users %}
+            <div
+              class="modal fade"
+              id="modalScrollable{{ p.id }}"
+              tabindex="-1"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="modalScrollable{{ p.id }}Title">
+                      History Chat
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="card card-bordered">
+                      <div class="card-header">
+                        <h4 class="card-title">
+                          <strong>{{ p.email }}</strong>
+                        </h4>
+                      </div>
+
+                      <div
+                        class="ps-container ps-theme-default ps-active-y"
+                        id="chat-content"
+                        style="
+                          overflow-y: scroll !important;
+                          height: 400px !important;
+                        "
+                      >
+                        {% for chat in p.chats %}
+                        <div class="media media-chat bot">
+                          <img
+                            class="avatar"
+                            src="../static/images/Roboot.jpg"
+                            alt="..."
+                          />
+                          <div class="media-body">
+                            <p>{{ chat.response }}</p>
+                          </div>
+                        </div>
+
+                        <div class="media-meta-day">
+                          {{ chat.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                        </div>
+
+                        <div class="media-chat user">
+                          <div class="media-body">
+                            <p>{{ chat.message }}</p>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-label-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+
+            <!-- Footer -->
+            <footer class="content-footer footer bg-footer-theme">
+              <div class="container-xxl">
+                <div
+                  class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column"
+                >
+                  <div class="mb-2 mb-md-0">
+                    ©
+                    <script>
+                      document.write(new Date().getFullYear());
+                    </script>
+                  </div>
+                </div>
+              </div>
+            </footer>
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
+
+    <!-- Core JS -->
+
+    <script src="../static/assets/vendor/libs/jquery/jquery.js"></script>
+
+    <script src="../static/assets/vendor/libs/popper/popper.js"></script>
+    <script src="../static/assets/vendor/js/bootstrap.js"></script>
+
+    <script src="../static/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+
+    <script src="../static/assets/vendor/js/menu.js"></script>
+
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+    <script src="../static/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+
+    <!-- Main JS -->
+
+    <script src="../static/assets/js/main.js"></script>
+
+    <!-- Page JS -->
+    <script src="../static/assets/js/dashboards-analytics.js"></script>
+
+    <!-- Place this tag before closing body tag for github widget button. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
   </body>
 </html>

@@ -1,11 +1,13 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from config import get_db_connection
 from email_service import send_email
+from auth import admin_required, login_required
 
 pengaduan_bp = Blueprint('pengaduan_bp', __name__)
 
 # Endpoint untuk menambahkan pengaduan
 @pengaduan_bp.route('/add', methods=['POST'])
+@login_required
 def add_pengaduan():
     data = request.json
     user_id = data.get('user_id')
@@ -38,6 +40,8 @@ def add_pengaduan():
 
 # Endpoint untuk melihat semua pengaduan
 @pengaduan_bp.route('/list', methods=['GET'])
+@login_required
+@admin_required
 def list_pengaduan():
     try:
         with get_db_connection() as conn:
@@ -59,16 +63,17 @@ def list_pengaduan():
             for p in pengaduan
         ]
 
-        return render_template('pengaduan.html', pengaduan=result), 200
+        return render_template('admin_dashboard.html', pengaduan=result), 200
 
     except Exception as e:
         return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
 
 # Endpoint untuk mengupdate status pengaduan
-@pengaduan_bp.route('/update/<int:id>', methods=['PUT'])
+@pengaduan_bp.route('/update/<int:id>', methods=['POST'])
+@login_required
+@admin_required
 def update_pengaduan(id):
-    data = request.json
-    status = data.get('status')
+    status = request.form.get('status')
 
     if not status:
         return jsonify({'error': 'Status tidak boleh kosong'}), 400
@@ -86,7 +91,8 @@ def update_pengaduan(id):
             body = f"Halo,\n\nPengaduan Anda terkait '{kategori}' telah selesai diproses. Terima kasih atas partisipasi Anda.\n\nSalam,\nAdmin"
             send_email(email_penerima, subject, body)
 
-        return jsonify({'message': 'Status pengaduan diperbarui'}), 200
+        return redirect(url_for('pengaduan_bp.list_pengaduan'))  # Redirect agar halaman reload
 
     except Exception as e:
         return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
+

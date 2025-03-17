@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from config import get_db_connection
 from email_service import send_email
+from auth import admin_required, login_required
 
 antrian_bp = Blueprint('antrian_bp', __name__)
 
@@ -13,6 +14,7 @@ def get_next_antrian():
 
 # Endpoint untuk menambahkan antrian KTP
 @antrian_bp.route('/daftar', methods=['POST'])
+@login_required
 def daftar_antrian():
     data = request.json
     user_id = data.get('user_id')
@@ -45,6 +47,8 @@ def daftar_antrian():
 
 # Endpoint untuk melihat semua antrian
 @antrian_bp.route('/list', methods=['GET'])
+@login_required
+@admin_required
 def list_antrian():
     try:
         with get_db_connection() as conn:
@@ -63,10 +67,11 @@ def list_antrian():
         return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
 
 # Endpoint untuk mengupdate status antrian
-@antrian_bp.route('/update/<int:id>', methods=['PUT'])
+@antrian_bp.route('/update/<int:id>', methods=['POST'])
+@login_required
+@admin_required
 def update_antrian(id):
-    data = request.json
-    status = data.get('status')
+    status = request.form.get('status')
 
     if not status:
         return jsonify({'error': 'Status tidak boleh kosong'}), 400
@@ -81,13 +86,15 @@ def update_antrian(id):
                 cur.execute("UPDATE antrian_ktp SET status = %s WHERE id = %s", (status, id))
                 conn.commit()
 
-        return jsonify({'message': 'Status antrian diperbarui'}), 200
+        return redirect(url_for('antrian_bp.list_antrian'))
 
     except Exception as e:
         return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
 
 # Endpoint untuk reset antrian
 @antrian_bp.route('/reset', methods=['DELETE'])
+@login_required
+@admin_required
 def reset_antrian():
     try:
         with get_db_connection() as conn:
