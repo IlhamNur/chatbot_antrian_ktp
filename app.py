@@ -76,7 +76,7 @@ def chatbot_response(msg):
 
 # Flask App
 app = Flask(__name__, static_url_path='/static')
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'supersecretkey')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 CORS(app)
 
 # Inisialisasi Flask-Login

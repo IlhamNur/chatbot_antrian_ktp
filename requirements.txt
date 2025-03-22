@@ -3,6 +3,7 @@ flask_cors
 flask-mail
 flask-login
 flask-bcrypt
+itsdangerous
 psycopg2
 nltk
 numpy

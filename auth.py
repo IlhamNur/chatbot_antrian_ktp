@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, abort
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, abort, jsonify
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin, login_user, login_required, logout_user, current_user
 from config import get_db_connection
+from token_module import generate_reset_token, verify_reset_token
+from email_service import send_email
 import psycopg2
 
 auth = Blueprint('auth', __name__)
-bcrypt = Bcrypt()  # Ini diinisialisasi di app.py
+bcrypt = Bcrypt()
 
 class User(UserMixin):
     def __init__(self, id, email, role):
@@ -87,3 +89,49 @@ def logout():
     session.pop('role', None)
     flash('Anda telah logout.', 'info')
     return redirect(url_for('auth.login'))
+
+@auth.route('/forgot-password', methods=['GET', 'POST'])
+def forgot():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        if not email:
+            return jsonify({'error': 'Email diperlukan'}), 400
+
+        token = generate_reset_token(email)
+        reset_url = url_for('auth.reset_password', token=token, _external=True)
+
+        try:
+            subject = "Reset Password"
+            body = f"Klik link berikut untuk mengatur ulang kata sandi Anda: {reset_url}"
+            send_email(email, subject, body)
+            flash('Email reset password telah dikirim', 'success')
+            return redirect(url_for('home'))
+        except Exception as e:
+            return jsonify({'error': f'Terjadi kesalahan saat mengirim email: {str(e)}'}), 500
+    
+    return render_template('lupa_password.html')
+
+@auth.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    email = verify_reset_token(token)
+    if not email:
+        return jsonify({'error': 'Token tidak valid atau sudah kadaluarsa'}), 400
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+
+        if not new_password:
+            return jsonify({'error': 'Password baru diperlukan'}), 400
+
+        # Simpan password baru ke database (hashing sebelum menyimpan)
+        hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("UPDATE users SET password = %s WHERE email = %s", (hashed_password, email))
+                conn.commit()
+
+        flash('Password berhasil direset', 'success')
+        return redirect(url_for('home'))
+    
+    return render_template('reset_password.html', token=token)
