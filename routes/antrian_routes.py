@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
 from config import get_db_connection
 from email_service import send_email
 from auth import admin_required, login_required
@@ -102,10 +102,12 @@ def reset_antrian():
                 with conn.cursor() as cur:
                     cur.execute("DELETE FROM antrian_ktp")
                     conn.commit()
-
-            return redirect(url_for('antrian_bp.list_antrian'), jsonify({'message': 'Antrian berhasil direset'})), 200
+                    
+            flash('Antrian berhasil direset', 'success')
+            return redirect(url_for('antrian_bp.list_antrian'))
 
         except Exception as e:
-            return redirect(url_for('antrian_bp.list_antrian'), jsonify({'error': f'Terjadi kesalahan: {str(e)}'})), 500
-
+            flash('Antrian berhasil direset', 'error')
+            return redirect(url_for('antrian_bp.list_antrian'))
+                            
     return jsonify({'error': 'Method Not Allowed'}), 405
