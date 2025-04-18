@@ -1,15 +1,6 @@
 {
   "intents": [
     {
-      "tag": "noanswer",
-      "patterns": ["Maaf", "Tidak tahu", "Bukan itu maksud saya", "Apa?"],
-      "responses": [
-        "Maaf, saya tidak mengerti apa yang kamu maksud.",
-        "Maaf, untuk saat ini chatbot ini belum dapat menjawab pertanyaan kamu."
-      ],
-      "context": [""]
-    },
-    {
       "tag": "greeting",
       "patterns": [
         "halo",
@@ -24,8 +15,7 @@
         "Halo, selamat datang di layanan informasi Kecamatan Rangkasbitung. Ada yang bisa kami bantu?",
         "Hai! Selamat datang di layanan informasi publik Kecamatan Rangkasbitung. Bagaimana kami bisa membantu Anda?",
         "Selamat datang di layanan Kecamatan Rangkasbitung. Silakan tanyakan informasi yang Anda butuhkan."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "help",
@@ -59,8 +49,7 @@
         "8. Pembuatan Surat Pindah Domisili",
         "9. Pembuatan Legalisasi Dokumen",
         "10. Pelayanan Pengaduan Masyarakat."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_ktp",
@@ -71,8 +60,7 @@
       ],
       "responses": [
         "Syarat pembuatan KTP: Fotokopi KK, Akta Kelahiran, Surat pengantar RT/RW, Pas foto."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_kk",
@@ -82,8 +70,7 @@
       ],
       "responses": [
         "Syarat pembuatan KK: Surat pengantar RT/RW, Fotokopi Akta Nikah, Fotokopi KTP anggota keluarga."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_akta_kelahiran",
@@ -93,8 +80,7 @@
       ],
       "responses": [
         "Syarat pembuatan Akta Kelahiran: Surat keterangan kelahiran dari rumah sakit/bidan, Fotokopi KK, Fotokopi KTP orang tua."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_sktm",
@@ -104,8 +90,7 @@
       ],
       "responses": [
         "Syarat pembuatan SKTM: Surat pengantar RT/RW, Fotokopi KK, Fotokopi KTP Kepala Keluarga, Surat pernyataan tidak mampu."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_surat_kematian",
@@ -115,8 +100,7 @@
       ],
       "responses": [
         "Syarat pembuatan Surat Kematian: Surat keterangan kematian dari dokter/rumah sakit, Fotokopi KK, Fotokopi KTP almarhum/almarhumah, Fotokopi KTP pelapor, Surat pengantar RT/RW."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_domisili",
@@ -126,8 +110,7 @@
       ],
       "responses": [
         "Syarat pembuatan Surat Keterangan Domisili: Surat pengantar RT/RW, Fotokopi KK, Fotokopi KTP."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_iumk",
@@ -137,8 +120,7 @@
       ],
       "responses": [
         "Syarat pembuatan IUMK: Surat pengantar RT/RW, Fotokopi KTP, Fotokopi KK, Surat pernyataan usaha."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_pindah_domisili",
@@ -148,8 +130,7 @@
       ],
       "responses": [
         "Syarat pembuatan Surat Pindah Domisili: Surat pengantar RT/RW, Fotokopi KK, Fotokopi KTP, Surat pernyataan pindah."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_legalisasi",
@@ -159,8 +140,7 @@
       ],
       "responses": [
         "Syarat pembuatan Legalisasi Dokumen: Dokumen asli yang akan dilegalisasi, Fotokopi dokumen, Surat pengantar jika diperlukan."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "requirement_pengaduan",
@@ -170,12 +150,15 @@
       ],
       "responses": [
         "Syarat pengaduan masyarakat: Formulir pengaduan, Fotokopi KTP, Bukti pendukung pengaduan."
-      ],
-      "context": [""]
+      ]
     },
     {
       "tag": "feedback",
-      "patterns": ["Selesai", "Terima kasih", "Cukup sekian"],
+      "patterns": [
+        "Selesai",
+        "Terima kasih",
+        "Cukup sekian"
+      ],
       "responses": [
         "Terima kasih telah menggunakan layanan informasi Kecamatan Rangkasbitung. Mohon berikan penilaian dan masukan Anda melalui Google Form berikut: [LINK GOOGLE FORM]",
         "Kami sangat menghargai masukan Anda! Silakan isi formulir umpan balik di sini: [LINK GOOGLE FORM]",
@@ -203,6 +186,20 @@
       ],
       "responses": [
         "Silakan berikan nama lengkap dan email Anda untuk mendaftar antrian KTP."
+      ]
+    },
+    {
+      "tag": "noanswer",
+      "patterns": [
+        "Maaf",
+        "Tidak tahu",
+        "Bukan itu maksud saya",
+        "Apa?",
+        "Ha?"
+      ],
+      "responses": [
+        "Maaf, saya tidak mengerti apa yang kamu maksud.",
+        "Maaf, untuk saat ini chatbot ini belum dapat menjawab pertanyaan kamu."
       ]
     }
   ]

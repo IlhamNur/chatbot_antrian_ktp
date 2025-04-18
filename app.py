@@ -13,6 +13,7 @@ from nltk.stem import WordNetLemmatizer
 from routes.chat_routes import chat_bp
 from routes.pengaduan_routes import pengaduan_bp
 from routes.antrian_routes import antrian_bp
+from routes.data_routes import data_bp
 from auth import auth, load_user, bcrypt
 from config import get_db_connection
 
@@ -60,14 +61,30 @@ def predict_class(sentence):
 # Mendapatkan respons berdasarkan intent
 def getResponse(ints):
     if not ints:
-        return {"response": "Maaf, saya tidak memahami pertanyaan Anda.", "intent": "none"}
-    
+        return get_noanswer_response(intents)
+
     tag = ints[0]['intent']
     for intent in intents['intents']:
         if intent['tag'] == tag:
-            return {"response": random.choice(intent['responses']), "intent": tag}
-    
-    return {"response": "Maaf, saya tidak memahami pertanyaan Anda.", "intent": "none"}
+            return {
+                "response": random.choice(intent['responses']),
+                "intent": tag
+            }
+
+    return get_noanswer_response(intents)
+
+def get_noanswer_response(intents):
+    for intent in intents['intents']:
+        if intent['tag'] == 'noanswer':
+            return {
+                "response": random.choice(intent['responses']),
+                "intent": 'noanswer'
+            }
+    # Fallback jika tag noanswer tidak ditemukan
+    return {
+        "response": "Maaf, saya tidak memahami pertanyaan Anda.",
+        "intent": "none"
+    }
 
 # Fungsi utama chatbot
 def chatbot_response(msg):
@@ -125,6 +142,7 @@ app.register_blueprint(chat_bp, url_prefix='/chat')
 app.register_blueprint(pengaduan_bp, url_prefix='/pengaduan')
 app.register_blueprint(antrian_bp, url_prefix='/antrian')
 app.register_blueprint(auth, url_prefix='/auth')
+app.register_blueprint(data_bp, url_prefix='/data')
 
 if __name__ == "__main__":
     app.run(debug=True)

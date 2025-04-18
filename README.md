@@ -27,8 +27,8 @@ Sebelum menjalankan proyek, pastikan telah menginstal:
 
 ### 1️⃣ Siapkan Lingkungan Virtual & Install Dependencies
 ```sh
-python -m venv venv
-source venv/bin/activate   # MacOS/Linux
+python -m venv .venv
+source .venv/bin/activate   # MacOS/Linux
 venv\Scripts\activate    # Windows
 pip install -r requirements.txt
 ```
