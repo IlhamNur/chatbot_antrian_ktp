@@ -53,7 +53,7 @@ def list_antrian():
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT id, user_id, nama, email, nomor_antrian, status, created_at FROM antrian_ktp WHERE status = 'Menunggu' ORDER BY created_at ASC")
+                cur.execute("SELECT id, user_id, nama, email, nomor_antrian, status, created_at FROM antrian_ktp ORDER BY status ASC")
                 antrian = cur.fetchall()
 
         result = [
@@ -79,11 +79,28 @@ def update_antrian(id):
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT id FROM antrian_ktp WHERE id = %s", (id,))
-                if cur.fetchone() is None:
+                # Ambil nomor antrian dari ID yang ingin diupdate
+                cur.execute("SELECT nomor_antrian FROM antrian_ktp WHERE id = %s", (id,))
+                result = cur.fetchone()
+                if result is None:
                     return jsonify({'error': 'Antrian tidak ditemukan'}), 404
 
-                cur.execute("UPDATE antrian_ktp SET status = %s WHERE id = %s", (status, id))
+                current_no = result[0]
+
+                # Update status dan set nomor_antrian = 0
+                cur.execute("""
+                    UPDATE antrian_ktp
+                    SET status = %s, nomor_antrian = 0
+                    WHERE id = %s
+                """, (status, id))
+
+                # Geser semua antrian setelahnya
+                cur.execute("""
+                    UPDATE antrian_ktp
+                    SET nomor_antrian = nomor_antrian - 1
+                    WHERE nomor_antrian > %s
+                """, (current_no,))
+
                 conn.commit()
 
         return redirect(url_for('antrian_bp.list_antrian'))
@@ -100,14 +117,15 @@ def reset_antrian():
         try:
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
-                    cur.execute("DELETE FROM antrian_ktp")
+                    # Hapus semua data dan reset ID (auto increment)
+                    cur.execute("TRUNCATE TABLE antrian_ktp RESTART IDENTITY CASCADE")
                     conn.commit()
                     
             flash('Antrian berhasil direset', 'success')
             return redirect(url_for('antrian_bp.list_antrian'))
 
         except Exception as e:
-            flash('Antrian berhasil direset', 'error')
+            flash(f'Terjadi kesalahan: {str(e)}', 'error')
             return redirect(url_for('antrian_bp.list_antrian'))
                             
     return jsonify({'error': 'Method Not Allowed'}), 405

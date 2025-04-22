@@ -261,6 +261,7 @@
                   <table class="table">
                     <thead>
                       <tr>
+                        <th>No</th>
                         <th>No Antrian</th>
                         <th>Nama</th>
                         <th>Email</th>
@@ -272,6 +273,11 @@
                       {% for a in antrian %}
                       <tr>
                         <td>{{ loop.index }}</td>
+                        {% if a.status == 'Menunggu' %}
+                        <td>{{ a.nomor_antrian }}</td>
+                        {% else %}
+                        <td>-</td>
+                        {% endif %}
                         <td>{{ a.nama }}</td>
                         <td>{{ a.email }}</td>
                         <td>
